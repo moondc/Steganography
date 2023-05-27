@@ -1,26 +1,21 @@
 const dm = require("./bmpDataManager");
 const bm = require('./byteModifier');
-const prompt = require("prompt-sync")({ sigint: true });
 
-function getMessage(filePath) {
-    const maxMessageLength = Math.floor(dm.getBmpPixelCount(filePath) / 4) - 3
-    let message = prompt(`Your message can be at max ${maxMessageLength} chars, please enter it now: `);
-    if (message.length > maxMessageLength) {
-        console.log('');
-        console.log("I gave you simple instructions and yet you choose a message greater than allowed.  I can't work with people like you.");
-        console.log('');
-        throw new Error("Trust betrayed")
-    }
-    return message
-}
 
-function encodeMessage() {
-    const filePath = prompt('Enter the path to your image: ');
+function encodeMessage(filePath, message) {
     if (!dm.isBmp24bitNoCompression(filePath)) {
         console.log("I cannot use this image, I need to have a 24 bit non compressed bmp image")
         return;
     }
-    const message = getMessage(filePath);
+
+    const maxMessageLength = Math.floor(dm.getBmpPixelCount(filePath) / 4) - 3
+    if (message.length > maxMessageLength) {
+        console.log('');
+        console.log("You chose too much content to be encoded.  I can't work with people like you.");
+        console.log({ MessageLength: message.length, MaxMessageLength: maxMessageLength });
+        throw new Error("Content too large")
+    }
+
 
     let pixelArr = dm.readBmpPixels(filePath);
     let modifiedArr = injectMessage(message, pixelArr);

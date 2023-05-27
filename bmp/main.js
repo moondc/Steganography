@@ -1,16 +1,38 @@
 const em = require('./encodeMessage');
 const dm = require('./decodeMessage');
-const bm = require('./byteModifier');
+const fh = require('./fileHandler');
 
-const prompt = require("prompt-sync")({ sigint: true });
 
-function main() {
-    bm.logChar('b')
-    const input = prompt("(e)ncode or (d)ecode?");
-    if (input === "e") em.encodeMessage();
-    if (input === "d") dm.decodeMessage()
+
+function main(file, flag = 'd', message = '') {
+
+    if (flag.includes('d')) {
+        const isFile = true
+        let message = dm.decodeMessage(file);
+        //message = fh.decompressString(message);
+        console.log(message.length)
+        if (isFile) {
+            fh.stringToBitsFile(message)
+        }
+        else {
+            console.log(message.length);
+            console.log(message);
+        }
+
+    }
+    else if (flag.includes('e')) {
+        let contentToEncode = message
+        if (fh.isFile(message)) {
+            contentToEncode = fh.fileBitsToString(message);
+            console.log('original message length: ' + contentToEncode.length);
+        }
+
+        //contentToEncode = fh.compressString(contentToEncode);
+        console.log('base64 message length: ' + contentToEncode.length);
+        em.encodeMessage(file, contentToEncode);
+    }
 }
 
-main();
+main(process.argv[2], process.argv[3], process.argv[4]);
 
-//C:\Users\Jack Frost\Desktop\modded.bmp
+//C:\Users\vboxuser\Desktop\Untitled.bmp

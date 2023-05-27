@@ -1,12 +1,10 @@
 const dm = require("./bmpDataManager");
 const bm = require('./byteModifier');
-const prompt = require("prompt-sync")({ sigint: true });
 
-async function decodeMessage() {
-    const filePath = prompt('Enter the path to your image: ');
+function decodeMessage(filePath) {
 
     let simpleArray = dm.readBmpPixels(filePath);
-    extractMessage(simpleArray);
+    return extractMessage(simpleArray);
 }
 
 function extractMessage(array) {
@@ -29,6 +27,7 @@ function extractMessage(array) {
                 if (char === '\t') {
                     breakoutCount++;
                     if (breakoutCount === 3) {
+                        message = message.slice(0, -3);
                         shouldBreak = true;
                         break;
                     }
@@ -40,7 +39,8 @@ function extractMessage(array) {
         }
         if (shouldBreak) break;
     }
-    console.log(message)
+
+    return message;
 }
 
 module.exports = {
